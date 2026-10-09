@@ -180,3 +180,25 @@ revoke all on function public.comissoes_exportar(text) from public, authenticate
 grant execute on function public.comissoes_listar_clientes(text) to anon;
 grant execute on function public.comissoes_registrar(text, text, text, uuid, numeric, text, text, date) to anon;
 grant execute on function public.comissoes_exportar(text) to anon;
+
+-- Gera um token novo, guarda só o hash e devolve o valor uma única vez.
+-- Uso (SQL Editor do Supabase): select private.gerar_token('formulario');
+create or replace function private.gerar_token(p_nome text)
+returns text
+language plpgsql
+volatile
+set search_path = ''
+as $$
+declare
+  v_token text := encode(extensions.gen_random_bytes(32), 'hex');
+begin
+  if p_nome not in ('formulario', 'planilha') then
+    raise exception 'nome inválido: use formulario ou planilha';
+  end if;
+  insert into private.integracao_tokens (nome, token_hash)
+  values (p_nome, encode(extensions.digest(v_token, 'sha256'), 'hex'))
+  on conflict (nome) do update set token_hash = excluded.token_hash, created_at = now();
+  return v_token;
+end;
+$$;
+revoke all on function private.gerar_token(text) from public, anon, authenticated;

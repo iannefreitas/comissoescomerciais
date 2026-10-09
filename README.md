@@ -41,16 +41,17 @@ Gerados automaticamente: `id`, `form_response_id` (`web:<uuid do envio>`),
 - A planilha usa um token separado (`planilha`), apenas de leitura.
 - A `service_role` não é usada em nenhum lugar deste projeto.
 
-### Trocar um token
+### Gerar / trocar um token
 
-```bash
-openssl rand -hex 32            # novo token
-printf %s "<token>" | sha256sum # hash para o banco
-```
+No SQL Editor do Supabase (projeto segantini-cadastro):
+
 ```sql
-update private.integracao_tokens set token_hash = '<hash>' where nome = 'formulario'; -- ou 'planilha'
+select private.gerar_token('formulario');  -- copie para FORM_TOKEN na Vercel e faça redeploy
+select private.gerar_token('planilha');    -- copie para a célula B1 da aba "Respostas Comissões"
 ```
-Depois atualize `FORM_TOKEN` na Vercel (e redeploy) ou a URL da fórmula na planilha.
+
+O valor aparece só nessa consulta; o banco guarda apenas o hash. Rodar de novo
+invalida o token anterior.
 
 ## Idempotência
 
