@@ -12,8 +12,10 @@ Formulário (Vercel, public/index.html)
   └─ GET  /api/opcoes   → RPC comissoes_listar_clientes  (clientes ao vivo do Supabase)
   └─ POST /api/enviar   → RPC comissoes_registrar        (valida + grava, idempotente)
                               └─ public.comissoes_comerciais  ← sistema de CS lê daqui
-Planilha Google (aba "Respostas Comissões")
-  └─ =IMPORTDATA(/api/planilha?token=…) → RPC comissoes_exportar (só leitura)
+Planilha Google (aba "Respostas Comissões") — tempo real
+  comissoes_comerciais (insert/update) → trigger pg_net → Apps Script (App da Web)
+  └─ Apps Script → GET /api/planilha?formato=json → RPC comissoes_exportar (só leitura)
+     acrescenta linhas novas e atualiza status; nunca apaga (acionador de 5 min como rede de segurança)
 ```
 
 ## Campos
@@ -47,11 +49,19 @@ No SQL Editor do Supabase (projeto segantini-cadastro):
 
 ```sql
 select private.gerar_token('formulario');  -- copie para FORM_TOKEN na Vercel e faça redeploy
-select private.gerar_token('planilha');    -- copie para a célula B1 da aba "Respostas Comissões"
+select private.gerar_token('planilha');    -- copie para a propriedade PLANILHA_TOKEN do Apps Script
 ```
 
 O valor aparece só nessa consulta; o banco guarda apenas o hash. Rodar de novo
 invalida o token anterior.
+
+## Planilha em tempo real (instalação única)
+
+1. Planilha **Dados Clientes** → **Extensões → Apps Script** → cole `apps-script/SincronizarComissoes.gs`.
+2. ⚙ **Configurações do projeto** → **Propriedades do script** → `PLANILHA_TOKEN` = token da planilha.
+3. Rode a função **`instalar`** e autorize (cria o acionador de 5 min e sincroniza).
+4. **Implantar → Nova implantação → App da Web** (Executar como: *Eu*; Acesso: *Qualquer pessoa*) → copie a URL `/exec`.
+5. No SQL Editor do Supabase: `select private.definir_webhook_planilha('<URL /exec>');`
 
 ## Idempotência
 

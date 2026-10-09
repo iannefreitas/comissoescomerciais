@@ -1,6 +1,7 @@
-// GET /api/planilha?token=... -> CSV com todas as comissões, para a aba
-// da planilha Google via =IMPORTDATA(). Usa um token próprio, só leitura,
-// diferente do token do formulário.
+// GET /api/planilha?token=...[&formato=json] -> todas as comissões, lidas
+// pelo Apps Script que mantém a aba da planilha Google (JSON) ou por
+// =IMPORTDATA() (CSV). Usa um token próprio, só leitura, diferente do
+// token do formulário.
 
 import { rpc, RpcError } from "../lib/supabase.js";
 
@@ -33,6 +34,13 @@ export default async function handler(req, res) {
 
   try {
     const linhas = await rpc("comissoes_exportar", { p_token: token });
+
+    // ?formato=json -> usado pelo Apps Script de sincronização em tempo real
+    if (req.query?.formato === "json") {
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ ok: true, colunas: COLUNAS, linhas: linhas ?? [] });
+    }
+
     const csv = [COLUNAS.map(([, titulo]) => celula(titulo)).join(",")];
     for (const l of linhas ?? []) {
       csv.push(
