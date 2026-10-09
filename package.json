@@ -1,0 +1,8 @@
+{
+  "name": "comissoes-comerciais-segantini",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Formulário de Registro de Comissões Comerciais — Segantini (Vercel + Supabase + Google Sheets)",
+  "type": "module",
+  "engines": { "node": ">=20" }
+}

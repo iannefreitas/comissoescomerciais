@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Comissões Comerciais — Segantini</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/logo-segantini.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --laranja: #CF4400;       /* cor de fundo da logo oficial */
+      --laranja-escuro: #A93700;
+      --laranja-claro: #FBEDE6;
+      --gelo: #E6E9EA;          /* cor do símbolo da logo oficial */
+      --fundo: #F4F2F0;
+      --card: #FFFFFF;
+      --texto: #1F1A17;
+      --texto-suave: #6B625C;
+      --borda: #DCD6D1;
+      --erro: #B3261E;
+      --ok: #1E7A46;
+      --raio: 10px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .faixa {
+      background: var(--laranja);
+      height: 168px;
+    }
+    main {
+      max-width: 680px;
+      margin: -120px auto 48px;
+      padding: 0 16px;
+    }
+    .cabecalho {
+      background: var(--card);
+      border-radius: var(--raio);
+      border-top: 10px solid var(--laranja);
+      padding: 28px 28px 24px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
+    }
+    .cabecalho img {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      flex: none;
+    }
+    h1 {
+      font-size: 1.45rem;
+      line-height: 1.25;
+      margin: 0 0 4px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .sub { margin: 0; color: var(--texto-suave); font-size: .95rem; }
+    .obrig { color: var(--erro); }
+
+    .campo {
+      background: var(--card);
+      border-radius: var(--raio);
+      padding: 22px 28px 24px;
+      margin-top: 12px;
+      border-left: 4px solid transparent;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+      transition: border-color .15s;
+    }
+    .campo:focus-within { border-left-color: var(--laranja); }
+    .campo.invalido { border-left-color: var(--erro); }
+    label.titulo {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .dica { font-size: .85rem; color: var(--texto-suave); margin: -8px 0 12px; }
+    select, input[type="text"], input[type="date"], input[type="search"] {
+      width: 100%;
+      font: inherit;
+      color: var(--texto);
+      background: #fff;
+      border: 1px solid var(--borda);
+      border-radius: 8px;
+      padding: 11px 12px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    select:focus, input:focus {
+      border-color: var(--laranja);
+      box-shadow: 0 0 0 3px rgba(207, 68, 0, .15);
+    }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B625C' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+    input[type="search"] { margin-bottom: 8px; }
+    .moeda { position: relative; }
+    .moeda span {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--texto-suave); pointer-events: none;
+    }
+    .moeda input { padding-left: 40px; }
+    .msg-erro { color: var(--erro); font-size: .85rem; margin-top: 8px; display: none; }
+    .campo.invalido .msg-erro { display: block; }
+
+    .acoes {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 20px; gap: 12px; flex-wrap: wrap;
+    }
+    button {
+      font: inherit; font-weight: 600; cursor: pointer;
+      border-radius: 8px; padding: 11px 26px; border: 0;
+    }
+    .enviar { background: var(--laranja); color: #fff; }
+    .enviar:hover { background: var(--laranja-escuro); }
+    .enviar:disabled { opacity: .6; cursor: progress; }
+    .limpar { background: transparent; color: var(--laranja); padding: 11px 8px; }
+    .aviso {
+      margin-top: 16px; padding: 14px 16px; border-radius: 8px; display: none;
+      font-size: .95rem;
+    }
+    .aviso.erro { display: block; background: #FCECEA; color: var(--erro); }
+    .sucesso {
+      background: var(--card); border-radius: var(--raio); padding: 32px 28px;
+      margin-top: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); display: none;
+    }
+    .sucesso h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    .sucesso p { margin: 0 0 18px; color: var(--texto-suave); }
+    .rodape { text-align: center; color: var(--texto-suave); font-size: .8rem; margin-top: 28px; }
+    .carregando { color: var(--texto-suave); font-size: .9rem; }
+
+    @media (max-width: 520px) {
+      .faixa { height: 120px; }
+      main { margin-top: -84px; }
+      .cabecalho { padding: 22px 18px 18px; gap: 14px; }
+      .cabecalho img { width: 56px; height: 56px; }
+      h1 { font-size: 1.2rem; }
+      .campo { padding: 18px; }
+      .sucesso { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="faixa" aria-hidden="true"></div>
+  <main>
+    <header class="cabecalho">
+      <img src="/logo-segantini.png" alt="Segantini" width="72" height="72">
+      <div>
+        <h1>Registro de Comissões Comerciais — Segantini</h1>
+        <p class="sub">Preencha um registro por venda. <span class="obrig">*</span> Indica uma pergunta obrigatória.</p>
+      </div>
+    </header>
+
+    <form id="form" novalidate>
+      <div class="campo" data-campo="consultora">
+        <label class="titulo" for="consultora">Nome da consultora <span class="obrig">*</span></label>
+        <select id="consultora" required>
+          <option value="">Escolher</option>
+        </select>
+        <div class="msg-erro">Selecione a consultora.</div>
+      </div>
+
+      <div class="campo" data-campo="cliente">
+        <label class="titulo" for="cliente">Nome do cliente <span class="obrig">*</span></label>
+        <p class="dica">Lista atualizada automaticamente a partir do cadastro de clientes do sistema de CS.</p>
+        <input type="search" id="busca-cliente" placeholder="Buscar cliente…" autocomplete="off" aria-label="Buscar cliente">
+        <select id="cliente" required>
+          <option value="">Carregando clientes…</option>
+        </select>
+        <div class="msg-erro">Selecione o cliente.</div>
+      </div>
+
+      <div class="campo" data-campo="mrr">
+        <label class="titulo" for="mrr">Valor da MRR vendida <span class="obrig">*</span></label>
+        <p class="dica">Valor mensal recorrente vendido. Ex.: 2.500,00</p>
+        <div class="moeda">
+          <span>R$</span>
+          <input type="text" id="mrr" inputmode="decimal" autocomplete="off" placeholder="0,00" required>
+        </div>
+        <div class="msg-erro">Informe um valor numérico maior ou igual a zero.</div>
+      </div>
+
+      <div class="campo" data-campo="tipoProjeto">
+        <label class="titulo" for="tipoProjeto">Tipo de projeto <span class="obrig">*</span></label>
+        <select id="tipoProjeto" required>
+          <option value="">Escolher</option>
+        </select>
+        <div class="msg-erro">Selecione o tipo de projeto.</div>
+      </div>
+
+      <div class="campo" data-campo="tipoVariavel">
+        <label class="titulo" for="tipoVariavel">Tipo de variável <span class="obrig">*</span></label>
+        <select id="tipoVariavel" required>
+          <option value="">Escolher</option>
+        </select>
+        <div class="msg-erro">Selecione o tipo de variável.</div>
+      </div>
+
+      <div class="campo" data-campo="dataApresentacao">
+        <label class="titulo" for="dataApresentacao">Data da apresentação da proposta <span class="obrig">*</span></label>
+        <input type="date" id="dataApresentacao" min="2020-01-01" required>
+        <div class="msg-erro">Informe a data da apresentação.</div>
+      </div>
+
+      <div id="aviso" class="aviso" role="alert"></div>
+
+      <div class="acoes">
+        <button type="submit" class="enviar" id="btn-enviar">Enviar</button>
+        <button type="button" class="limpar" id="btn-limpar">Limpar formulário</button>
+      </div>
+    </form>
+
+    <section class="sucesso" id="sucesso" aria-live="polite">
+      <h2>Comissão registrada ✓</h2>
+      <p>O registro foi salvo e já aparece na aba Comissões Comerciais do sistema de CS, com status <strong>Em revisão</strong>.</p>
+      <button type="button" class="enviar" id="btn-novo">Registrar outra comissão</button>
+    </section>
+
+    <p class="rodape">Segantini · Uso interno da equipe comercial</p>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let submissionId = crypto.randomUUID();
+    let clientes = [];
+
+    function preencher(select, itens, rotulo = (x) => x, valor = (x) => x) {
+      const atual = select.value;
+      select.length = 1;
+      for (const item of itens) {
+        const opt = document.createElement("option");
+        opt.value = valor(item);
+        opt.textContent = rotulo(item);
+        select.appendChild(opt);
+      }
+      if ([...select.options].some((o) => o.value === atual)) select.value = atual;
+    }
+
+    function normalizar(s) {
+      return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    }
+
+    function renderClientes() {
+      const termo = normalizar($("busca-cliente").value.trim());
+      const lista = termo ? clientes.filter((c) => normalizar(c.nome).includes(termo)) : clientes;
+      const sel = $("cliente");
+      sel.options[0].textContent = lista.length ? "Escolher" : "Nenhum cliente encontrado";
+      preencher(sel, lista, (c) => c.nome, (c) => c.id);
+      if (termo && lista.length === 1) sel.value = lista[0].id;
+    }
+
+    async function carregarOpcoes() {
+      try {
+        const r = await fetch("/api/opcoes", { cache: "no-store" });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || "Erro ao carregar opções");
+        preencher($("consultora"), d.consultoras);
+        preencher($("tipoProjeto"), d.tiposProjeto);
+        preencher($("tipoVariavel"), d.tiposVariavel);
+        clientes = d.clientes;
+        renderClientes();
+      } catch (e) {
+        $("cliente").options[0].textContent = "Não foi possível carregar os clientes";
+        mostrarErro("Não foi possível carregar as opções do formulário. Recarregue a página.");
+      }
+    }
+
+    // aceita "2.500,50", "2500,50", "2500.50", "R$ 2.500"
+    function lerValor(texto) {
+      let s = texto.replace(/[R$\s]/g, "");
+      if (!s) return NaN;
+      if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+      else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+      if (!/^\d+(\.\d{1,2})?$/.test(s)) return NaN;
+      return Number(s);
+    }
+
+    $("mrr").addEventListener("blur", () => {
+      const v = lerValor($("mrr").value);
+      if (Number.isFinite(v)) {
+        $("mrr").value = v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    });
+
+    $("busca-cliente").addEventListener("input", renderClientes);
+
+    function marcar(campo, valido) {
+      document.querySelector(`[data-campo="${campo}"]`).classList.toggle("invalido", !valido);
+      return valido;
+    }
+
+    function mostrarErro(msg) {
+      const a = $("aviso");
+      a.textContent = msg;
+      a.className = msg ? "aviso erro" : "aviso";
+    }
+
+    function coletar() {
+      const dados = {
+        submissionId,
+        consultora: $("consultora").value,
+        clienteId: $("cliente").value,
+        mrr: lerValor($("mrr").value),
+        tipoProjeto: $("tipoProjeto").value,
+        tipoVariavel: $("tipoVariavel").value,
+        dataApresentacao: $("dataApresentacao").value,
+      };
+      const ok = [
+        marcar("consultora", !!dados.consultora),
+        marcar("cliente", !!dados.clienteId),
+        marcar("mrr", Number.isFinite(dados.mrr) && dados.mrr >= 0),
+        marcar("tipoProjeto", !!dados.tipoProjeto),
+        marcar("tipoVariavel", !!dados.tipoVariavel),
+        marcar("dataApresentacao", /^\d{4}-\d{2}-\d{2}$/.test(dados.dataApresentacao)),
+      ].every(Boolean);
+      return ok ? dados : null;
+    }
+
+    $("form").addEventListener("change", (e) => {
+      const campo = e.target.closest("[data-campo]");
+      if (campo && campo.classList.contains("invalido")) coletar();
+    });
+
+    $("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mostrarErro("");
+      const dados = coletar();
+      if (!dados) {
+        document.querySelector(".campo.invalido")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      const btn = $("btn-enviar");
+      btn.disabled = true;
+      btn.textContent = "Enviando…";
+      try {
+        const r = await fetch("/api/enviar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) throw new Error(d.error || "Não foi possível registrar a comissão.");
+        $("form").style.display = "none";
+        $("sucesso").style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        // o mesmo submissionId é reenviado na próxima tentativa: sem duplicar
+        mostrarErro(err.message + " Tente enviar novamente.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar";
+      }
+    });
+
+    function limpar() {
+      $("form").reset();
+      document.querySelectorAll(".campo.invalido").forEach((c) => c.classList.remove("invalido"));
+      mostrarErro("");
+      renderClientes();
+      submissionId = crypto.randomUUID();
+    }
+
+    $("btn-limpar").addEventListener("click", limpar);
+    $("btn-novo").addEventListener("click", () => {
+      limpar();
+      $("sucesso").style.display = "none";
+      $("form").style.display = "block";
+      carregarOpcoes();
+    });
+
+    carregarOpcoes();
+  </script>
+</body>
+</html>
